@@ -6,6 +6,10 @@ const ORDERS_KEY = "limoncello:orders";
 const TOTAL_BOTTLES = 92;
 const INITIAL_STOCK = 90;
 
+export function getRedisClient() {
+  return getRedis();
+}
+
 function getRedis() {
   // Support KV_REST_API_URL + KV_REST_API_TOKEN (Vercel KV)
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
