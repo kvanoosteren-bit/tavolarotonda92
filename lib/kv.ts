@@ -39,6 +39,7 @@ async function saveOrders(orders: Order[]) {
   const result = await put(BLOB_PATH, JSON.stringify(orders), {
     access: "private",
     addRandomSuffix: false,
+    allowOverwrite: true,
   });
   lastBlobUrl = result.url;
   console.log(`[blob] saved orders, url=${result.url}`);
