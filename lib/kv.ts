@@ -1,4 +1,4 @@
-import { put, list, head } from "@vercel/blob";
+import { put, list, del } from "@vercel/blob";
 import { Order } from "./types";
 
 const TOTAL_BOTTLES = 92;
@@ -8,12 +8,12 @@ const BLOB_PATH = "limoncello-orders.json";
 // Get all orders from blob storage
 export async function getOrders(): Promise<Order[]> {
   try {
-    // Find our blob
     const { blobs } = await list({ prefix: BLOB_PATH });
     if (blobs.length === 0) return [];
 
-    const blobUrl = blobs[0].url;
-    const res = await fetch(blobUrl);
+    // Private blobs need downloadUrl
+    const blob = blobs[0];
+    const res = await fetch(blob.downloadUrl);
     if (!res.ok) return [];
     const orders: Order[] = await res.json();
     return orders;
@@ -25,22 +25,11 @@ export async function getOrders(): Promise<Order[]> {
 
 // Save orders array to blob
 async function saveOrders(orders: Order[]) {
-  // Delete existing blobs with this name
-  const { blobs } = await list({ prefix: BLOB_PATH });
-
-  // Upload new version (put overwrites if same pathname)
+  // Upload new version
   await put(BLOB_PATH, JSON.stringify(orders), {
-    access: "public",
+    access: "private",
     addRandomSuffix: false,
   });
-
-  // Clean up old versions
-  if (blobs.length > 0) {
-    const { del } = await import("@vercel/blob");
-    for (const blob of blobs) {
-      try { await del(blob.url); } catch {}
-    }
-  }
 }
 
 // Get stock based on orders
