@@ -10,7 +10,7 @@ function getFromEmail() {
 }
 
 function getAdminEmail() {
-  return process.env.ADMIN_EMAIL || "kevin@id.nl";
+  return process.env.ADMIN_EMAIL || "kvanoosteren@reshift.nl";
 }
 
 function formatPrice(amount: number): string {
