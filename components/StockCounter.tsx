@@ -21,11 +21,19 @@ export default function StockCounter({
         {/* Stock number */}
         <div className="mb-6">
           {loading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-[#D4A843] animate-pulse" />
-              <div className="w-3 h-3 rounded-full bg-[#D4A843] animate-pulse animation-delay-200" />
-              <div className="w-3 h-3 rounded-full bg-[#D4A843] animate-pulse animation-delay-400" />
-            </div>
+            <>
+              <p className="text-[#B8C0D4] text-sm uppercase tracking-widest mb-2">
+                Nog beschikbaar
+              </p>
+              <p className="font-playfair text-6xl md:text-7xl font-bold text-[#D4A843]">
+                ···
+                <span className="text-2xl md:text-3xl text-[#B8C0D4]">
+                  {" "}
+                  / {total}
+                </span>
+              </p>
+              <p className="text-[#B8C0D4] text-sm mt-1">flessen beschikbaar</p>
+            </>
           ) : isSoldOut ? (
             <p className="font-playfair text-4xl md:text-5xl font-bold text-[#E74C3C]">
               UITVERKOCHT
