@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import Story from "@/components/Story";
 import StockCounter from "@/components/StockCounter";
 import OrderForm from "@/components/OrderForm";
+import VideoSection from "@/components/VideoSection";
 import Footer from "@/components/Footer";
 import { StockResponse } from "@/lib/types";
 
@@ -48,6 +49,7 @@ export default function Home() {
         available={stock.available}
         onOrderSuccess={handleOrderSuccess}
       />
+      <VideoSection />
       <Footer />
     </main>
   );
