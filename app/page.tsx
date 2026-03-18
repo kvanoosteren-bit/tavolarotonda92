@@ -19,10 +19,15 @@ export default function Home() {
   const fetchStock = useCallback(async () => {
     try {
       const res = await fetch("/api/stock");
-      const data: StockResponse = await res.json();
-      setStock(data);
+      const data = await res.json();
+      if (typeof data.available === "number" && typeof data.total === "number") {
+        setStock(data);
+      } else {
+        setStock({ available: 90, total: 92 });
+      }
     } catch (error) {
       console.error("Failed to fetch stock:", error);
+      setStock({ available: 90, total: 92 });
     } finally {
       setLoading(false);
     }

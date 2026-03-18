@@ -9,9 +9,7 @@ export async function GET() {
     return NextResponse.json({ available, total: TOTAL_BOTTLES });
   } catch (error) {
     console.error("Failed to get stock:", error);
-    return NextResponse.json(
-      { error: "Kon voorraad niet ophalen" },
-      { status: 500 }
-    );
+    // Fallback when KV is not configured
+    return NextResponse.json({ available: 90, total: TOTAL_BOTTLES });
   }
 }

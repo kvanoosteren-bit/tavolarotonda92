@@ -7,17 +7,8 @@ export default function Footer() {
         </p>
         <p className="text-[#B8C0D4] text-sm mb-1">Veenendaal</p>
         <div className="w-8 h-px bg-[rgba(212,168,67,0.3)] mx-auto my-4" />
-        <p className="text-[#B8C0D4] text-xs mb-2">
+        <p className="text-[#B8C0D4] text-xs">
           Na reservering ontvang je een Tikkie voor betaling
-        </p>
-        <p className="text-[#B8C0D4]/60 text-xs">
-          Vragen? Mail naar{" "}
-          <a
-            href="mailto:info@tafelronde92.nl"
-            className="text-[#D4A843] hover:text-[#E8C45A] transition-colors"
-          >
-            info@tafelronde92.nl
-          </a>
         </p>
       </div>
     </footer>
