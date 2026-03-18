@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v4 as uuidv4 } from "uuid";
 import { decrementStock, saveOrder, getStock } from "@/lib/kv";
 import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 import { Order } from "@/lib/types";
@@ -18,12 +17,13 @@ function validatePhone(phone: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  let step = "parsing";
   try {
     const body = await request.json();
     const { naam, email, telefoon, aantal } = body;
 
     // Validate required fields
-    if (!naam || !email || !telefoon || !aantal) {
+    if (!naam || !email || !telefoon || aantal === undefined || aantal === null) {
       return NextResponse.json(
         { success: false, error: "Alle velden zijn verplicht" },
         { status: 400 }
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate types and ranges
-    const parsedAantal = parseInt(aantal, 10);
+    const parsedAantal = typeof aantal === "number" ? aantal : parseInt(aantal, 10);
     if (isNaN(parsedAantal) || parsedAantal < 1 || parsedAantal > 10) {
       return NextResponse.json(
         { success: false, error: "Aantal moet tussen 1 en 10 zijn" },
@@ -54,6 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Attempt atomic stock decrement
+    step = "stock";
     const newStock = await decrementStock(parsedAantal);
 
     if (newStock === null) {
@@ -71,8 +72,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Create order
+    step = "save";
     const order: Order = {
-      id: uuidv4(),
+      id: crypto.randomUUID(),
       naam: naam.trim(),
       email: email.trim().toLowerCase(),
       telefoon: telefoon.trim(),
@@ -87,13 +89,13 @@ export async function POST(request: NextRequest) {
 
     // Send emails (non-blocking - don't fail the order if email fails)
     try {
+      step = "email";
       await Promise.all([
         sendAdminNotification(order, newStock),
         sendCustomerConfirmation(order),
       ]);
     } catch (emailError) {
       console.error("Failed to send emails:", emailError);
-      // Order is still successful even if email fails
     }
 
     return NextResponse.json({
@@ -102,9 +104,9 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
     });
   } catch (error) {
-    console.error("Order failed:", error);
+    console.error(`Order failed at step [${step}]:`, error);
     return NextResponse.json(
-      { success: false, error: "Er is iets misgegaan. Probeer het opnieuw." },
+      { success: false, error: `Bestelling mislukt (${step}). Probeer het opnieuw.` },
       { status: 500 }
     );
   }
