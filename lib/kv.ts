@@ -20,9 +20,13 @@ export async function getOrders(): Promise<Order[]> {
     const blob = blobs[0];
     console.log(`[blob] found blob: url=${blob.url}, hasDownloadUrl=${"downloadUrl" in blob}`);
 
-    // Try downloadUrl first, fall back to url
+    // Private blobs need token auth to read
     const fetchUrl = blob.downloadUrl || blob.url;
-    const res = await fetch(fetchUrl);
+    const res = await fetch(fetchUrl, {
+      headers: {
+        Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
+      },
+    });
     console.log(`[blob] fetch status: ${res.status}`);
 
     if (!res.ok) return [];
