@@ -10,10 +10,10 @@ import { StockResponse } from "@/lib/types";
 
 export default function Home() {
   const [stock, setStock] = useState<StockResponse>({
-    available: 0,
+    available: 90,
     total: 92,
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const fetchStock = useCallback(async () => {
     try {
