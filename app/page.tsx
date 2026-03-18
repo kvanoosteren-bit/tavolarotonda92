@@ -9,11 +9,8 @@ import Footer from "@/components/Footer";
 import { StockResponse } from "@/lib/types";
 
 export default function Home() {
-  const [stock, setStock] = useState<StockResponse>({
-    available: 90,
-    total: 92,
-  });
-  const [loading, setLoading] = useState(false);
+  const [stock, setStock] = useState<StockResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchStock = useCallback(async () => {
     try {
@@ -37,19 +34,19 @@ export default function Home() {
   }, [fetchStock]);
 
   const handleOrderSuccess = (newAvailable: number) => {
-    setStock((prev) => ({ ...prev, available: newAvailable }));
+    setStock({ available: newAvailable, total: 92 });
   };
 
   return (
     <main className="flex-1">
       <Hero />
       <StockCounter
-        available={stock.available}
-        total={stock.total}
+        available={stock?.available ?? 0}
+        total={stock?.total ?? 92}
         loading={loading}
       />
       <OrderForm
-        available={stock.available}
+        available={stock?.available ?? 0}
         onOrderSuccess={handleOrderSuccess}
       />
       <VideoSection />

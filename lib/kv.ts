@@ -1,37 +1,32 @@
-import { put, list, head } from "@vercel/blob";
+import { put, list } from "@vercel/blob";
 import { Order } from "./types";
 
 const TOTAL_BOTTLES = 92;
 const INITIAL_STOCK = 90;
 const BLOB_PATH = "limoncello-orders.json";
 
-// Keep track of the blob URL after writing
-let lastBlobUrl: string | null = null;
-
 // Get all orders from blob storage
 export async function getOrders(): Promise<Order[]> {
   try {
-    // First try: list blobs to find our file
     const { blobs } = await list({ prefix: BLOB_PATH });
-    console.log(`[blob] list returned ${blobs.length} blobs`);
-
     if (blobs.length === 0) return [];
 
     const blob = blobs[0];
-    console.log(`[blob] found blob: url=${blob.url}, hasDownloadUrl=${"downloadUrl" in blob}`);
-
-    // Private blobs need token auth to read
     const fetchUrl = blob.downloadUrl || blob.url;
-    const res = await fetch(fetchUrl, {
+
+    // Cache-bust to always get fresh data
+    const url = new URL(fetchUrl);
+    url.searchParams.set("t", Date.now().toString());
+
+    const res = await fetch(url.toString(), {
       headers: {
         Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}`,
       },
+      cache: "no-store",
     });
-    console.log(`[blob] fetch status: ${res.status}`);
 
     if (!res.ok) return [];
-    const orders: Order[] = await res.json();
-    return orders;
+    return await res.json();
   } catch (e) {
     console.error("getOrders failed:", e);
     return [];
@@ -40,13 +35,11 @@ export async function getOrders(): Promise<Order[]> {
 
 // Save orders array to blob
 async function saveOrders(orders: Order[]) {
-  const result = await put(BLOB_PATH, JSON.stringify(orders), {
+  await put(BLOB_PATH, JSON.stringify(orders), {
     access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
   });
-  lastBlobUrl = result.url;
-  console.log(`[blob] saved orders, url=${result.url}`);
 }
 
 // Get stock based on orders
