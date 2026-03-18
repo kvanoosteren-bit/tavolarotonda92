@@ -26,7 +26,7 @@ export default function OrderForm({ available, onOrderSuccess }: OrderFormProps)
   } | null>(null);
 
   const isSoldOut = available <= 0;
-  const maxAantal = Math.min(10, available);
+  const maxAantal = Math.min(20, available);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -264,6 +264,10 @@ export default function OrderForm({ available, onOrderSuccess }: OrderFormProps)
                 {/* Glow effect on hover */}
                 <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 skew-x-12" />
               </button>
+
+              <p className="text-[#B8C0D4] text-xs text-center mt-4">
+                Ambachtelijk en Italiaans geproduceerd
+              </p>
             </form>
           )}
         </div>

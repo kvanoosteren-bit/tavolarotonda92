@@ -66,19 +66,6 @@ export default function StockCounter({
             Bijna uitverkocht — bestel snel!
           </p>
         )}
-
-        {/* Price */}
-        {!isSoldOut && (
-          <div className="mt-8">
-            <p className="text-[#B8C0D4] text-sm uppercase tracking-widest mb-2">
-              Per fles
-            </p>
-            <p className="font-playfair text-[#D4A843]">
-              <span className="text-5xl md:text-6xl font-bold">&euro;22</span>
-              <span className="text-3xl md:text-4xl font-bold">,92</span>
-            </p>
-          </div>
-        )}
       </div>
     </section>
   );

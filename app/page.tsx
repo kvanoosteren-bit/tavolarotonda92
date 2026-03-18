@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Hero from "@/components/Hero";
-import Story from "@/components/Story";
 import StockCounter from "@/components/StockCounter";
 import OrderForm from "@/components/OrderForm";
 import VideoSection from "@/components/VideoSection";
@@ -44,7 +43,6 @@ export default function Home() {
   return (
     <main className="flex-1">
       <Hero />
-      <Story />
       <StockCounter
         available={stock.available}
         total={stock.total}

@@ -32,9 +32,9 @@ export async function POST(request: NextRequest) {
 
     // Validate types and ranges
     const parsedAantal = typeof aantal === "number" ? aantal : parseInt(aantal, 10);
-    if (isNaN(parsedAantal) || parsedAantal < 1 || parsedAantal > 10) {
+    if (isNaN(parsedAantal) || parsedAantal < 1 || parsedAantal > 20) {
       return NextResponse.json(
-        { success: false, error: "Aantal moet tussen 1 en 10 zijn" },
+        { success: false, error: "Aantal moet tussen 1 en 20 zijn" },
         { status: 400 }
       );
     }
