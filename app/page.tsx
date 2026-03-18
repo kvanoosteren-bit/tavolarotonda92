@@ -19,7 +19,7 @@ export default function Home() {
       if (typeof data.available === "number" && typeof data.total === "number") {
         setStock(data);
       } else {
-        setStock({ available: 90, total: 92 });
+        setStock({ available: 0, total: 92 });
       }
     } catch (error) {
       console.error("Failed to fetch stock:", error);
