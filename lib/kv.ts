@@ -8,33 +8,29 @@ const INITIAL_STOCK = 90;
 
 export async function getStock(): Promise<number> {
   const stock = await kv.get<number>(STOCK_KEY);
-  if (stock === null) {
+  if (stock === null || stock === undefined) {
     await kv.set(STOCK_KEY, INITIAL_STOCK);
     return INITIAL_STOCK;
   }
-  return stock;
+  return Number(stock);
 }
 
 export async function decrementStock(amount: number): Promise<number | null> {
-  // Use a watch/multi pattern for atomicity
+  // Get current stock
   const current = await getStock();
+  console.log(`[stock] Current: ${current}, Requested: ${amount}`);
+
   if (current < amount) {
+    console.log(`[stock] Not enough stock`);
     return null;
   }
 
+  // Simple set with new value
   const newStock = current - amount;
+  await kv.set(STOCK_KEY, newStock);
+  console.log(`[stock] Updated to: ${newStock}`);
 
-  // Use atomic set with check - Vercel KV doesn't support WATCH,
-  // so we use DECRBY and check the result
-  const result = await kv.decrby(STOCK_KEY, amount);
-
-  // If result went negative, we have a race condition - revert
-  if (result < 0) {
-    await kv.incrby(STOCK_KEY, amount);
-    return null;
-  }
-
-  return result;
+  return newStock;
 }
 
 export async function saveOrder(order: Order): Promise<void> {
