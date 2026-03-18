@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { decrementStock, saveOrder, getStock } from "@/lib/kv";
+import { addOrder, getStock, deleteOrder } from "@/lib/kv";
 import { sendAdminNotification, sendCustomerConfirmation } from "@/lib/email";
 import { Order } from "@/lib/types";
 
@@ -7,30 +7,18 @@ export const dynamic = "force-dynamic";
 
 const PRICE_PER_BOTTLE = 22.92;
 
-function validateEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function validatePhone(phone: string): boolean {
-  const digits = phone.replace(/\D/g, "");
-  return digits.length >= 10;
-}
-
 export async function POST(request: NextRequest) {
-  let step = "parsing";
   try {
     const body = await request.json();
     const { naam, email, telefoon, aantal } = body;
 
-    // Validate required fields
-    if (!naam || !email || !telefoon || aantal === undefined || aantal === null) {
+    if (!naam || !email || !telefoon || aantal === undefined) {
       return NextResponse.json(
         { success: false, error: "Alle velden zijn verplicht" },
         { status: 400 }
       );
     }
 
-    // Validate types and ranges
     const parsedAantal = typeof aantal === "number" ? aantal : parseInt(aantal, 10);
     if (isNaN(parsedAantal) || parsedAantal < 1 || parsedAantal > 20) {
       return NextResponse.json(
@@ -39,40 +27,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!validateEmail(email)) {
-      return NextResponse.json(
-        { success: false, error: "Ongeldig e-mailadres" },
-        { status: 400 }
-      );
-    }
-
-    if (!validatePhone(telefoon)) {
-      return NextResponse.json(
-        { success: false, error: "Ongeldig telefoonnummer (minimaal 10 cijfers)" },
-        { status: 400 }
-      );
-    }
-
-    // Attempt atomic stock decrement
-    step = "stock";
-    const newStock = await decrementStock(parsedAantal);
-
-    if (newStock === null) {
-      const currentStock = await getStock();
+    // Check stock
+    const currentStock = await getStock();
+    if (currentStock < parsedAantal) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            currentStock === 0
-              ? "Helaas, alle flessen zijn uitverkocht!"
-              : `Niet genoeg voorraad. Er zijn nog ${currentStock} flessen beschikbaar.`,
+          error: currentStock === 0
+            ? "Helaas, alle flessen zijn uitverkocht!"
+            : `Niet genoeg voorraad. Er zijn nog ${currentStock} flessen beschikbaar.`,
         },
         { status: 409 }
       );
     }
 
-    // Create order
-    step = "save";
     const order: Order = {
       id: crypto.randomUUID(),
       naam: naam.trim(),
@@ -84,12 +52,10 @@ export async function POST(request: NextRequest) {
       status: "pending",
     };
 
-    // Save order
-    await saveOrder(order);
+    const newStock = await addOrder(order);
 
-    // Send emails (non-blocking - don't fail the order if email fails)
+    // Send emails (don't fail order if email fails)
     try {
-      step = "email";
       await Promise.all([
         sendAdminNotification(order, newStock),
         sendCustomerConfirmation(order),
@@ -104,10 +70,26 @@ export async function POST(request: NextRequest) {
       orderId: order.id,
     });
   } catch (error) {
-    console.error(`Order failed at step [${step}]:`, error);
+    console.error("Order failed:", error);
     return NextResponse.json(
-      { success: false, error: `Bestelling mislukt (${step}). Probeer het opnieuw.` },
+      { success: false, error: `Bestelling mislukt: ${error}` },
       { status: 500 }
     );
+  }
+}
+
+// DELETE /api/order?id=xxx
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+    if (!id) {
+      return NextResponse.json({ error: "Order ID is verplicht" }, { status: 400 });
+    }
+    const newStock = await deleteOrder(id);
+    return NextResponse.json({ success: true, available: newStock });
+  } catch (error) {
+    console.error("Delete order failed:", error);
+    return NextResponse.json({ success: false, error: String(error) }, { status: 500 });
   }
 }
