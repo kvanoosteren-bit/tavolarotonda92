@@ -7,10 +7,24 @@ const TOTAL_BOTTLES = 92;
 const INITIAL_STOCK = 90;
 
 function getRedis() {
-  return new Redis({
-    url: process.env.KV_REST_API_URL!,
-    token: process.env.KV_REST_API_TOKEN!,
-  });
+  // Support KV_REST_API_URL + KV_REST_API_TOKEN (Vercel KV)
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    return new Redis({
+      url: process.env.KV_REST_API_URL,
+      token: process.env.KV_REST_API_TOKEN,
+    });
+  }
+
+  // Support REDIS_URL (rediss://default:TOKEN@host:port)
+  // Parse it to extract REST API URL and token
+  if (process.env.REDIS_URL) {
+    const parsed = new URL(process.env.REDIS_URL);
+    const restUrl = `https://${parsed.hostname}`;
+    const token = parsed.password;
+    return new Redis({ url: restUrl, token });
+  }
+
+  throw new Error("No Redis connection configured. Set REDIS_URL or KV_REST_API_URL + KV_REST_API_TOKEN.");
 }
 
 export async function getStock(): Promise<number> {
