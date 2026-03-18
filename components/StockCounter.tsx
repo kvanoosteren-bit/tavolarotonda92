@@ -16,7 +16,7 @@ export default function StockCounter({
   const isSoldOut = available <= 0;
 
   return (
-    <section className="py-12 md:py-16 px-4">
+    <section className="py-6 md:py-8 px-4">
       <div className="max-w-md mx-auto text-center">
         {/* Stock number */}
         <div className="mb-6">

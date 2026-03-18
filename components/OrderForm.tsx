@@ -85,7 +85,7 @@ export default function OrderForm({ available, onOrderSuccess }: OrderFormProps)
 
   if (success) {
     return (
-      <section className="py-12 md:py-16 px-4">
+      <section className="py-4 md:py-6 px-4">
         <SuccessMessage
           naam={success.naam}
           aantal={success.aantal}
@@ -97,7 +97,7 @@ export default function OrderForm({ available, onOrderSuccess }: OrderFormProps)
   }
 
   return (
-    <section className="py-12 md:py-16 px-4" id="bestel">
+    <section className="py-4 md:py-6 px-4" id="bestel">
       <div className="max-w-md mx-auto">
         <div className="bg-[rgba(27,36,68,0.8)] border border-[rgba(212,168,67,0.3)] rounded-2xl p-6 md:p-8 shadow-[0_0_60px_rgba(212,168,67,0.08)]">
           <h2 className="font-playfair text-2xl md:text-3xl text-white text-center mb-8">
