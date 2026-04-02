@@ -2,7 +2,7 @@ import { put, list } from "@vercel/blob";
 import { Order } from "./types";
 
 const TOTAL_BOTTLES = 92;
-const INITIAL_STOCK = 90;
+const INITIAL_STOCK = 91;
 const BLOB_PATH = "limoncello-orders.json";
 
 // Get all orders from blob storage

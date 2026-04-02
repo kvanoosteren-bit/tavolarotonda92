@@ -9,6 +9,6 @@ export async function GET() {
     return NextResponse.json({ available, total: TOTAL_BOTTLES });
   } catch (error) {
     console.error("Failed to get stock:", error);
-    return NextResponse.json({ available: 90, total: TOTAL_BOTTLES });
+    return NextResponse.json({ available: 91, total: TOTAL_BOTTLES });
   }
 }

@@ -23,7 +23,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to fetch stock:", error);
-      setStock({ available: 90, total: 92 });
+      setStock({ available: 91, total: 92 });
     } finally {
       setLoading(false);
     }
